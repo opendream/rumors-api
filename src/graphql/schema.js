@@ -6,6 +6,7 @@ import GetReply from './queries/GetReply';
 import GetUser from './queries/GetUser';
 import ListArticles from './queries/ListArticles';
 import ListReplies from './queries/ListReplies';
+import VerifyUser from './queries/VerifyUser';
 
 // Set individual objects
 import CreateArticle from './mutations/CreateArticle';
@@ -26,6 +27,7 @@ export default new GraphQLSchema({
       GetUser,
       ListArticles,
       ListReplies,
+      VerifyUser,
     },
   }),
   mutation: new GraphQLObjectType({
