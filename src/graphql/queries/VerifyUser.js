@@ -21,7 +21,12 @@ export default {
     }).then(results => {
       console.log('results', results[0])
 
-      // TODO: check password
+      // TODO: create user with email and password if user dose not exist
+      if (results.length === 0) {
+        
+      }
+
+      // TODO: check password if user exist
 
       return results.length == 1? results[0]: null;
 

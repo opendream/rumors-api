@@ -22,7 +22,6 @@ const User = new GraphQLObjectType({
   fields: () => ({
     id: { type: GraphQLString },
     email: currentUserOnlyField(GraphQLString),
-    password: { type: GraphQLString },
     name: { type: GraphQLString },
     avatarUrl: { type: GraphQLString },
 

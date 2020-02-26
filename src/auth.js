@@ -3,8 +3,10 @@ import client, { processMeta } from 'util/client';
 import FacebookStrategy from 'passport-facebook';
 import TwitterStrategy from 'passport-twitter';
 import GithubStrategy from 'passport-github2';
+import LocalStrategy from 'passport-local';
 import Router from 'koa-router';
 import url from 'url';
+import passwordHash from 'password-hash';
 
 /**
  * Serialize to session
@@ -47,14 +49,24 @@ async function verifyProfile(profile, fieldName) {
     q: `${fieldName}:${profile.id}`,
   });
 
-  if (users.hits.total) {
-    return processMeta(users.hits.hits[0]);
-  }
-
   const now = new Date().toISOString();
   const email = profile.emails && profile.emails[0].value;
   const avatar = profile.photos && profile.photos[0].value;
   const username = profile.displayName ? profile.displayName : profile.username;
+  const password = profile.password ? profile.password: undefined;
+  const hashedPassword = password ? passwordHash.generate(password): undefined;
+
+  const user = users.hits.hits[0]._source;
+
+  console.log('qoqoqoqoqoq', user.email, user.password)
+  if (email && password && user.email && user.password && email === user.email && !passwordHash.verify(password, user.password)) {
+    throw new Error(user);
+  }
+
+  if (users.hits.total) {
+    return processMeta(users.hits.hits[0]);
+  }
+
 
   // Find user with such email
   //
@@ -67,6 +79,7 @@ async function verifyProfile(profile, fieldName) {
 
     if (usersWithEmail.hits.total) {
       const id = usersWithEmail.hits.hits[0]._id;
+
       // Fill in fieldName with profile.id so that it does not matter if user's
       // email gets changed in the future.
       //
@@ -99,6 +112,7 @@ async function verifyProfile(profile, fieldName) {
     body: {
       email,
       name: username,
+      password: hashedPassword,
       avatarUrl: avatar,
       [fieldName]: profile.id,
       createdAt: now,
@@ -172,6 +186,31 @@ if (process.env.GITHUB_CLIENT_ID) {
   );
 }
 
+passport.use(
+  new LocalStrategy(
+    {
+      usernameField: 'email'
+    }, 
+    (email, password, done) => {
+
+      const profile = {
+        id: email,
+        password: password,
+        emails: [{value: email}],
+        displayName: email.split('@')[0]
+      }
+
+      verifyProfile(profile, 'email')
+        .then(user => {
+          console.log('###### user', user)
+
+          done(null, user)
+        })
+        .catch(done)
+    }
+  )
+);
+
 // Exports route handlers
 //
 export const loginRouter = Router()
@@ -192,10 +231,12 @@ export const loginRouter = Router()
   })
   .get('/facebook', passport.authenticate('facebook', { scope: ['email'] }))
   .get('/twitter', passport.authenticate('twitter'))
-  .get('/github', passport.authenticate('github', { scope: ['user:email'] }));
-
+  .get('/github', passport.authenticate('github', { scope: ['user:email'] }))
+  .post('/local', passport.authenticate('local'));
+  
 const handlePassportCallback = strategy => (ctx, next) =>
   passport.authenticate(strategy, (err, user) => {
+
     if (!err && !user) err = new Error('No such user');
 
     if (err) {
@@ -236,4 +277,6 @@ export const authRouter = Router()
   })
   .get('/facebook', handlePassportCallback('facebook'))
   .get('/twitter', handlePassportCallback('twitter'))
-  .get('/github', handlePassportCallback('github'));
+  .get('/github', handlePassportCallback('github'))
+  .post('/local', handlePassportCallback('local'));
+
