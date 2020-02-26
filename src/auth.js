@@ -43,6 +43,7 @@ passport.deserializeUser(async (userId, done) => {
 async function verifyProfile(profile, fieldName) {
   // Find user with such user id
   //
+  
   const users = await client.search({
     index: 'users',
     type: 'doc',
@@ -56,15 +57,16 @@ async function verifyProfile(profile, fieldName) {
   const password = profile.password ? profile.password: undefined;
   const hashedPassword = password ? passwordHash.generate(password): undefined;
 
-  const user = users.hits.hits[0]._source;
-
-  console.log('qoqoqoqoqoq', user.email, user.password)
-  if (email && password && user.email && user.password && email === user.email && !passwordHash.verify(password, user.password)) {
-    throw new Error(user);
-  }
-
   if (users.hits.total) {
+    const user = users.hits.hits[0]._source;
+
+    if ((fieldName === 'email' && !password) || (fieldName === 'email' && email && password && user.email && email === user.email && !passwordHash.verify(password, user.password))) {
+      return false;
+    }
     return processMeta(users.hits.hits[0]);
+
+  } else if (fieldName === 'email') {
+    return false
   }
 
 
@@ -232,7 +234,10 @@ export const loginRouter = Router()
   .get('/facebook', passport.authenticate('facebook', { scope: ['email'] }))
   .get('/twitter', passport.authenticate('twitter'))
   .get('/github', passport.authenticate('github', { scope: ['user:email'] }))
-  .post('/local', passport.authenticate('local'));
+  .post('/local', passport.authenticate('local'), function(ctx, next) {
+    ctx.redirect(ctx.request.query.next);
+  });
+
   
 const handlePassportCallback = strategy => (ctx, next) =>
   passport.authenticate(strategy, (err, user) => {
