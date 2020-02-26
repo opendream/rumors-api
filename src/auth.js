@@ -56,16 +56,21 @@ async function verifyProfile(profile, fieldName) {
   const username = profile.displayName ? profile.displayName : profile.username;
   const password = profile.password ? profile.password: undefined;
   const hashedPassword = password ? passwordHash.generate(password): undefined;
+  const action = profile.action;
 
   if (users.hits.total) {
     const user = users.hits.hits[0]._source;
 
-    if ((fieldName === 'email' && !password) || (fieldName === 'email' && email && password && user.email && email === user.email && !passwordHash.verify(password, user.password))) {
+    if ((action === 'login' && !password) || (action === 'login' && email && password && user.email && email === user.email && !passwordHash.verify(password, user.password))) {
       return false;
     }
+    else if (action === 'signup') {
+      return false;
+    }
+
     return processMeta(users.hits.hits[0]);
 
-  } else if (fieldName === 'email') {
+  } else if (action === 'login') {
     return false
   }
 
@@ -191,15 +196,17 @@ if (process.env.GITHUB_CLIENT_ID) {
 passport.use(
   new LocalStrategy(
     {
-      usernameField: 'email'
+      usernameField: 'email',
+      passReqToCallback: true
     }, 
-    (email, password, done) => {
+    (req, email, password, done) => {
 
       const profile = {
         id: email,
         password: password,
         emails: [{value: email}],
-        displayName: email.split('@')[0]
+        displayName: email.split('@')[0],
+        action: req.query.action
       }
 
       verifyProfile(profile, 'email')
