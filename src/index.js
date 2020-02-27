@@ -87,6 +87,7 @@ const apolloServer = new ApolloServer({
         ? (ctx.state.user || {}).id
         : ctx.query.userId,
     appId: ctx.appId,
+    isStaff: (ctx.state.user || {}).isStaff
   }),
   formatError(err) {
     // make web clients know they should login

@@ -1,4 +1,5 @@
 import { GraphQLObjectType, GraphQLString, GraphQLInt } from 'graphql';
+import { createConnectionType } from 'graphql/util';
 
 /**
  * Field config helper for current user only field.
@@ -11,7 +12,7 @@ const currentUserOnlyField = (type, resolver) => ({
   type,
   description: 'Returns only for current user. Returns `null` otherwise.',
   resolve(user, arg, context, info) {
-    if (user.id !== context.user.id) return null;
+    if (!context.user || (user.id !== context.user.id && !context.user.isStaff)) return null;
 
     return resolver ? resolver(user, arg, context, info) : user[info.fieldName];
   },
@@ -24,6 +25,7 @@ const User = new GraphQLObjectType({
     email: currentUserOnlyField(GraphQLString),
     name: { type: GraphQLString },
     avatarUrl: { type: GraphQLString },
+    belongTo: { type: GraphQLString },
 
     facebookId: currentUserOnlyField(GraphQLString),
     githubId: currentUserOnlyField(GraphQLString),
@@ -100,3 +102,9 @@ export const userFieldResolver = (
   //
   return null;
 };
+
+
+export const UserConnection = createConnectionType(
+  'UserConnection',
+  User
+);

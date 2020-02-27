@@ -7,8 +7,17 @@ export default {
   description: 'Change attribute of a user',
   args: {
     name: { type: new GraphQLNonNull(GraphQLString) },
+    belongTo: { type: GraphQLString },
+    id: { type: GraphQLString },
   },
-  async resolve(rootValue, { name }, { userId }) {
+  async resolve(rootValue, { name, belongTo, id }, ctx) {
+
+    let userId = ctx.userId
+    if (ctx.isStaff && id) {
+      userId = id
+    }
+
+
     const {
       result,
       get: { _source },
@@ -19,6 +28,7 @@ export default {
       body: {
         doc: {
           name,
+          belongTo: belongTo || undefined,
           updatedAt: new Date().toISOString(),
         },
         _source: true,
