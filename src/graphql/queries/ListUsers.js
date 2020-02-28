@@ -8,7 +8,6 @@ import {
   getSortArgs,
   pagingArgs,
 } from 'graphql/util';
-import scrapUrls from 'util/scrapUrls';
 
 import User from 'graphql/models/User';
 

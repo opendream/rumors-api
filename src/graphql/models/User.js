@@ -1,4 +1,4 @@
-import { GraphQLObjectType, GraphQLString, GraphQLInt } from 'graphql';
+import { GraphQLObjectType, GraphQLString, GraphQLInt, GraphQLBoolean } from 'graphql';
 import { createConnectionType } from 'graphql/util';
 
 /**
@@ -26,6 +26,7 @@ const User = new GraphQLObjectType({
     name: { type: GraphQLString },
     avatarUrl: { type: GraphQLString },
     belongTo: { type: GraphQLString },
+    isStaff: {type: GraphQLBoolean},
 
     facebookId: currentUserOnlyField(GraphQLString),
     githubId: currentUserOnlyField(GraphQLString),
@@ -91,8 +92,9 @@ export const userFieldResolver = (
 ) => {
   // If the root document is created by website users, we can resolve user from userId.
   //
-  if (appId === 'WEBSITE')
+  if (true || appId === 'WEBSITE') {
     return loaders.docLoader.load({ index: 'users', id: userId });
+  }
 
   // If the user comes from the same client as the root document, return the user id.
   //
