@@ -30,6 +30,7 @@ const Article = new GraphQLObjectType({
   fields: () => ({
     id: { type: GraphQLString },
     text: { type: GraphQLString },
+    categories: { type: new GraphQLList(GraphQLString) },
     createdAt: { type: GraphQLString },
     updatedAt: { type: GraphQLString },
     references: { type: new GraphQLList(ArticleReference) },
