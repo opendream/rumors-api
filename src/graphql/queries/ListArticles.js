@@ -1,4 +1,4 @@
-import { GraphQLInt, GraphQLString, GraphQLInputObjectType } from 'graphql';
+import { GraphQLInt, GraphQLString, GraphQLInputObjectType, GraphQLList } from 'graphql';
 import client from 'util/client';
 
 import {
@@ -63,6 +63,10 @@ export default {
             When specified, it overrides the settings of appId and userId.
           `,
         },
+        categories: {
+          type: new GraphQLList(GraphQLString),
+          description: 'List with articles contain categories'
+        }
       }),
     },
     orderBy: {
@@ -222,6 +226,14 @@ export default {
             },
           },
         },
+      });
+    }
+
+    if (filter.categories && filter.categories.length > 0) {
+      filterQueries.push({
+        terms: { 
+          categories: filter.categories
+        }
       });
     }
 
