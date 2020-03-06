@@ -64,8 +64,8 @@ export default {
           `,
         },
         categories: {
-          type: new GraphQLList(GraphQLString),
-          description: 'List with articles contain categories'
+          type: GraphQLString,
+          description: 'List with articles contain categories use , for separated categories'
         }
       }),
     },
@@ -231,7 +231,7 @@ export default {
 
     if (filter.categories && filter.categories.length > 0) {
       filterQueries.push({
-        terms: { 
+        match: { 
           categories: filter.categories
         }
       });
