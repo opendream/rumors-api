@@ -95,8 +95,18 @@ async function createNewArticle({
  * @param {ScrapResult[]} hyperlinks
  * @return {Promise | null} update result
  */
-export function updateArticleHyperlinks(articleId, scrapResults) {
+export function updateArticleHyperlinks(articleId, scrapResults, originHyperlinks) {
   if (!scrapResults || scrapResults.length === 0) return Promise.resolve(null);
+
+  const scrapResult = scrapResults[0]
+
+  updateHyperlinks = originHyperlinks
+  updateHyperlinks.forEach((hyperlink, i) => {
+    if (hyperlink.url == scrapResult.url) {
+      updateHyperlinks[i] = scrapResult
+    }
+  })
+    
 
   return client.update({
     index: 'articles',
@@ -121,56 +131,29 @@ export default {
   type: MutationResult,
   description: 'Create an article and/or a replyRequest',
   args: {
-    text: { type: new GraphQLNonNull(GraphQLString) },
-    reference: { type: new GraphQLNonNull(ArticleReferenceInput) },
-    reason: {
-      // FIXME: Change to required field after LINE bot is implemented
-      // type: new GraphQLNonNull(GraphQLString),
-      type: GraphQLString,
-      description:
-        'The reason why the user want to submit this article. Mandatory for 1st sender',
-    },
+    articleId: { type: new GraphQLNonNull(GraphQLString) },
+    url: { type: new GraphQLNonNull(GraphQLString) },
+    // reference: { type: new GraphQLNonNull(ArticleReferenceInput) },
   },
-  resolve(rootValue, { text, reference, reason }, { appId, userId, loaders }) {
-    assertUser({ appId, userId });
-    const newArticlePromise = createNewArticle({
-      text,
-      reference,
-      userId,
-      appId,
-    });
+  resolve: async (rootValue, {articleId, url}, { loaders }) => {
 
-    const scrapPromise = scrapUrls(text + (reference? ` ${reference.permalink}`: ``), {
-      cacheLoader: loaders.urlLoader,
+    const article = await loaders.docLoader.load({ index: 'articles', id: articleId })
+
+    const originHyperlinks = article.hyperlinks
+    const scrapPromise = scrapUrls(url, {
+      // cacheLoader: loaders.urlLoader,
       client,
     });
 
-    // Dependencies
-    //
-    // newArticlePromise* --> replyRequestPromise* -.
-    //                  \                            \ (ensure no parallel update to article)
-    // scrapPromise -----`----------------------------`--> hyperlinkPromise* --> done
-    //
-    // *: Updates article. Will trigger version_conflict_engine_exception if run in parallel.
-    //
-
-    const replyRequestPromise = newArticlePromise.then(articleId =>
-      createOrUpdateReplyRequest({ articleId, userId, appId, reason })
-    );
-
     const hyperlinkPromise = Promise.all([
-      newArticlePromise,
       scrapPromise,
-      replyRequestPromise, // Not used, just to avoid parallel update to article
     ]).then(([articleId, scrapResults]) => {
-      return updateArticleHyperlinks(articleId, scrapResults);
+      return updateArticleHyperlinks(articleId, scrapResults, originHyperlinks);
     });
 
     // Wait for all promises
     return Promise.all([
-      newArticlePromise, // for fetching articleId
       hyperlinkPromise,
-      replyRequestPromise,
     ]).then(([id]) => ({ id }));
   },
 };

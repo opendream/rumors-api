@@ -53,10 +53,6 @@ export async function updateArticleCategories(id, categories) {
   data.id = articleUpdateResult._id
 
   return data
-
-
-  console.log('data', data)
-
 }
 
 export default {

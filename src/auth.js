@@ -211,8 +211,6 @@ passport.use(
 
       verifyProfile(profile, 'email')
         .then(user => {
-          console.log('###### user', user)
-
           done(null, user)
         })
         .catch(done)
