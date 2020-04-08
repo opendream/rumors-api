@@ -40,6 +40,7 @@ export function getArticleId(text) {
  * @returns {string} the new article's ID
  */
 async function createNewArticle({
+  title,
   text,
   reference: originalReference,
   userId,
@@ -71,6 +72,7 @@ async function createNewArticle({
         },
       },
       upsert: {
+        title,
         text,
         createdAt: now,
         updatedAt: now,
@@ -121,6 +123,7 @@ export default {
   type: MutationResult,
   description: 'Create an article and/or a replyRequest',
   args: {
+    title: { type: GraphQLString },
     text: { type: new GraphQLNonNull(GraphQLString) },
     reference: { type: new GraphQLNonNull(ArticleReferenceInput) },
     reason: {
@@ -131,16 +134,17 @@ export default {
         'The reason why the user want to submit this article. Mandatory for 1st sender',
     },
   },
-  resolve(rootValue, { text, reference, reason }, { appId, userId, loaders }) {
+  resolve(rootValue, { title, text, reference, reason }, { appId, userId, loaders }) {
     assertUser({ appId, userId });
     const newArticlePromise = createNewArticle({
+      title,
       text,
       reference,
       userId,
       appId,
     });
 
-    const scrapPromise = scrapUrls(text + (reference? ` ${reference.permalink}`: ``), {
+    const scrapPromise = scrapUrls((title? `${title} `: ``) + text + (reference? ` ${reference.permalink}`: ``), {
       cacheLoader: loaders.urlLoader,
       client,
     });
