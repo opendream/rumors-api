@@ -18,6 +18,7 @@ import CreateOrUpdateReplyRequest from './mutations/CreateOrUpdateReplyRequest';
 import UpdateArticleReplyStatus from './mutations/UpdateArticleReplyStatus';
 import UpdateArticleCategories from './mutations/UpdateArticleCategories';
 import UpdateArticleHyperlink from './mutations/UpdateArticleHyperlink';
+import UpdateReplyHyperlink from './mutations/UpdateReplyHyperlink';
 import UpdateUser from './mutations/UpdateUser';
 
 export default new GraphQLSchema({
@@ -48,6 +49,7 @@ export default new GraphQLSchema({
       UpdateArticleReplyStatus,
       UpdateArticleCategories,
       UpdateArticleHyperlink,
+      UpdateReplyHyperlink,
       UpdateUser,
     },
   }),

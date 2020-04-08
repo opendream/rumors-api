@@ -29,68 +29,6 @@ export function getArticleId(text) {
 }
 
 /**
- * Creates a new article in ElasticSearch,
- * or updates its reference by adding a new reference
- *
- * @param {object} param
- * @param {string} param.text
- * @param {ArticleReferenceInput} param.reference
- * @param {string} param.userId
- * @param {string} param.appId
- * @returns {string} the new article's ID
- */
-async function createNewArticle({
-  text,
-  reference: originalReference,
-  userId,
-  appId,
-}) {
-  const articleId = getArticleId(text);
-  const now = new Date().toISOString();
-  const reference = {
-    ...originalReference,
-    createdAt: now,
-    userId: userId,
-    appId: appId,
-  };
-
-  await client.update({
-    index: 'articles',
-    type: 'doc',
-    id: articleId,
-    body: {
-      script: {
-        source: `
-          ctx._source.updatedAt = params.updatedAt;
-          ctx._source.references.add(params.reference);
-        `,
-        lang: 'painless',
-        params: {
-          updatedAt: now,
-          reference,
-        },
-      },
-      upsert: {
-        text,
-        createdAt: now,
-        updatedAt: now,
-        userId,
-        appId,
-        references: [reference],
-        articleReplies: [],
-        normalArticleReplycount: 0,
-        replyRequestCount: 0,
-        tags: [],
-        hyperlinks: [],
-      },
-    },
-    refresh: true, // Make sure the data is indexed when we create ReplyRequest
-  });
-
-  return articleId;
-}
-
-/**
  * @param {string} articleId
  * @param {ScrapResult[]} hyperlinks
  * @return {Promise | null} update result
@@ -107,14 +45,13 @@ export function updateArticleHyperlinks(articleId, scrapResults, originHyperlink
     }
   })
     
-
   return client.update({
     index: 'articles',
     type: 'doc',
     id: articleId,
     body: {
       doc: {
-        hyperlinks: scrapResults.map(
+        hyperlinks: updateHyperlinks.map(
           ({ url, normalizedUrl, title, summary }) => ({
             url,
             normalizedUrl,
@@ -129,7 +66,7 @@ export function updateArticleHyperlinks(articleId, scrapResults, originHyperlink
 
 export default {
   type: MutationResult,
-  description: 'Create an article and/or a replyRequest',
+  description: 'Update a article hyperlink by url',
   args: {
     articleId: { type: new GraphQLNonNull(GraphQLString) },
     url: { type: new GraphQLNonNull(GraphQLString) },
