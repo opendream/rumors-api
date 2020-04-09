@@ -25,6 +25,12 @@ export default {
     type: 'RUMOR',
     createdAt: 1,
   },
+  '/replies/doc/rumorNotRumor': {
+    text: 'bar',
+    reference: 'barbar',
+    type: 'RUMOR_NOT_RUMOR',
+    createdAt: 1,
+  },
   '/replies/doc/referenceUrl': {
     text: '國文課本',
     reference: 'http://gohome.com',

@@ -29,6 +29,7 @@ const Article = new GraphQLObjectType({
   name: 'Article',
   fields: () => ({
     id: { type: GraphQLString },
+    title: { type: GraphQLString },
     text: { type: GraphQLString },
     categories: { type: new GraphQLList(GraphQLString) },
     createdAt: { type: GraphQLString },
@@ -144,7 +145,7 @@ const Article = new GraphQLObjectType({
         const body = {
           query: {
             more_like_this: {
-              fields: ['text'],
+              fields: ['title', 'text'],
               like: [{ _index: 'articles', _type: 'doc', _id: id }],
               min_term_freq: 1,
               min_doc_freq: 1,

@@ -148,7 +148,7 @@ export default {
       shouldQueries.push(
         {
           more_like_this: {
-            fields: ['text'],
+            fields: ['title', 'text'],
             like: likeQuery,
             min_term_freq: 1,
             min_doc_freq: 1,

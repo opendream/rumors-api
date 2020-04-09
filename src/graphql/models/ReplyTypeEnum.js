@@ -9,10 +9,15 @@ export default new GraphQLEnumType({
       description:
         'The replier thinks that the article contains false information.',
     },
+    RUMOR_NOT_RUMOR: {
+      value: 'RUMOR_NOT_RUMOR',
+      description:
+        'The replier thinks that the articles contains no false information.',
+    },
     NOT_RUMOR: {
       value: 'NOT_RUMOR',
       description:
-        'The replier thinks that the articles contains no false information.',
+        'The replier thinks that the article almost true information.',
     },
     NOT_ARTICLE: {
       value: 'NOT_ARTICLE',
