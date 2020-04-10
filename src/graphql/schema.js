@@ -7,6 +7,7 @@ import GetUser from './queries/GetUser';
 import ListArticles from './queries/ListArticles';
 import ListReplies from './queries/ListReplies';
 import ListUsers from './queries/ListUsers';
+import ListTags from './queries/ListTags';
 
 // Set individual objects
 import CreateArticle from './mutations/CreateArticle';
@@ -15,6 +16,7 @@ import CreateArticleReply from './mutations/CreateArticleReply';
 import CreateOrUpdateArticleReplyFeedback from './mutations/CreateOrUpdateArticleReplyFeedback';
 import CreateOrUpdateReplyRequestFeedback from './mutations/CreateOrUpdateReplyRequestFeedback';
 import CreateOrUpdateReplyRequest from './mutations/CreateOrUpdateReplyRequest';
+import CreateOrUpdateTag from './mutations/CreateOrUpdateTag';
 import UpdateArticleReplyStatus from './mutations/UpdateArticleReplyStatus';
 import UpdateArticleCategories from './mutations/UpdateArticleCategories';
 import UpdateArticleHyperlink from './mutations/UpdateArticleHyperlink';
@@ -31,6 +33,7 @@ export default new GraphQLSchema({
       ListArticles,
       ListReplies,
       ListUsers,
+      ListTags,
     },
   }),
   mutation: new GraphQLObjectType({
@@ -46,6 +49,7 @@ export default new GraphQLSchema({
       CreateOrUpdateReplyRequest,
       CreateOrUpdateArticleReplyFeedback,
       CreateOrUpdateReplyRequestFeedback,
+      CreateOrUpdateTag,
       UpdateArticleReplyStatus,
       UpdateArticleCategories,
       UpdateArticleHyperlink,
