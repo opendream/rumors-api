@@ -40,13 +40,14 @@ export function getArticleId(text) {
  * @returns {string} the new article's ID
  */
 async function createNewArticle({
+  id,
   title,
   text,
   reference: originalReference,
   userId,
   appId,
 }) {
-  const articleId = getArticleId(text);
+  const articleId = id || getArticleId(text);
   const now = new Date().toISOString();
   const reference = {
     ...originalReference,
@@ -62,11 +63,16 @@ async function createNewArticle({
     body: {
       script: {
         source: `
+          ctx._source.title = params.title;
+          ctx._source.text = params.text;
+           
           ctx._source.updatedAt = params.updatedAt;
           ctx._source.references.add(params.reference);
         `,
         lang: 'painless',
         params: {
+          title,
+          text,
           updatedAt: now,
           reference,
         },
@@ -123,6 +129,7 @@ export default {
   type: MutationResult,
   description: 'Create an article and/or a replyRequest',
   args: {
+    id: { type: GraphQLString },
     title: { type: GraphQLString },
     text: { type: new GraphQLNonNull(GraphQLString) },
     reference: { type: new GraphQLNonNull(ArticleReferenceInput) },
@@ -134,9 +141,14 @@ export default {
         'The reason why the user want to submit this article. Mandatory for 1st sender',
     },
   },
-  resolve(rootValue, { title, text, reference, reason }, { appId, userId, loaders }) {
+  resolve(
+    rootValue,
+    { id, title, text, reference, reason },
+    { appId, userId, loaders }
+  ) {
     assertUser({ appId, userId });
     const newArticlePromise = createNewArticle({
+      id,
       title,
       text,
       reference,
@@ -144,10 +156,15 @@ export default {
       appId,
     });
 
-    const scrapPromise = scrapUrls((title? `${title} `: ``) + text + (reference? ` ${reference.permalink}`: ``), {
-      cacheLoader: loaders.urlLoader,
-      client,
-    });
+    const scrapPromise = scrapUrls(
+      (title ? `${title} ` : ``) +
+        text +
+        (reference ? ` ${reference.permalink}` : ``),
+      {
+        cacheLoader: loaders.urlLoader,
+        client,
+      }
+    );
 
     // Dependencies
     //
