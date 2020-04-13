@@ -98,6 +98,7 @@ export const pagingArgs = {
 };
 
 export function getSortArgs(orderBy, fieldFnMap = {}) {
+
   return orderBy
     .map(item => {
       const field = Object.keys(item)[0];

@@ -22,11 +22,13 @@ export function getTagId(title) {
 export async function createOrUpdateTagRequest({
   title,
   priority,
+  status,
 }) {
   const now = new Date().toISOString();
   const updatedDoc = {
     title: title,
     priority: priority,
+    status: status,
     updatedAt: now,
   };
 
@@ -39,6 +41,7 @@ export async function createOrUpdateTagRequest({
         source: `
           ctx._source.title = params.title;
           ctx._source.priority = params.priority;
+          ctx._source.status = params.status;
           ctx._source.updatedAt = params.updatedAt;
         `,
         lang: 'painless',
@@ -47,6 +50,7 @@ export async function createOrUpdateTagRequest({
       upsert: {
         title,
         priority,
+        status,
         createdAt: now,
         updatedAt: now,
       }
@@ -63,11 +67,13 @@ export default {
   args: {
     title: { type: new GraphQLNonNull(GraphQLString) },
     priority: { type: GraphQLInt },
+    status: {type: GraphQLString}
   },
-  async resolve(rootValue, { title, priority }, { appId, userId }) {
+  async resolve(rootValue, { title, priority, status }, { appId, userId }) {
     const { article } = await createOrUpdateTagRequest({
       title,
       priority,
+      status,
     });
     return article;
   },

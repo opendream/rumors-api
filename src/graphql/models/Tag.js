@@ -6,6 +6,7 @@ const Tag = new GraphQLObjectType({
   fields: () => ({
     title: { type: GraphQLString },
     priority: { type: GraphQLInt },
+    status: { type: GraphQLString },
     createdAt: { type: GraphQLString },
   }),
 });

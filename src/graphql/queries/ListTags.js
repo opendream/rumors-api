@@ -27,14 +27,25 @@ export default {
     { filter = {}, orderBy = [], ...otherParams },
     { userId, appId, loaders }
   ) {
+
     const body = {
-      sort: getSortArgs(orderBy),
+      sort: getSortArgs(orderBy || [{'priority': 'desc'}]),
       track_scores: true, // for _score sorting
     };
 
     // Collecting queries that will be used in bool queries later
     const shouldQueries = []; // Affects scores
     const filterQueries = []; // Not affects scores
+
+    filterQueries.push({
+      "bool" : {
+        "must_not" : {
+          "exists" : {
+            "field" : "status"
+          }
+        }
+      }
+    })
 
     body.query = {
       bool: {
