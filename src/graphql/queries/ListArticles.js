@@ -134,6 +134,16 @@ export default {
       throw new Error('Both appId and userId must be specified at once');
     }
 
+    filterQueries.push({
+      "bool" : {
+        "must_not" : {
+          "exists" : {
+            "field" : "status"
+          }
+        }
+      }
+    })
+
     if (filter.moreLikeThis) {
       const scrapResults = (await scrapUrls(filter.moreLikeThis.like, {
         client,

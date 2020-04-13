@@ -193,6 +193,9 @@ const Article = new GraphQLObjectType({
       type: new GraphQLList(Hyperlink),
       description: 'Hyperlinks in article text',
     },
+    status: {
+      type: GraphQLString,
+    }
   }),
 });
 
