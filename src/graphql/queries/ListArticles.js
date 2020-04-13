@@ -240,9 +240,13 @@ export default {
     }
 
     if (filter.categories && filter.categories.length > 0) {
-      filterQueries.push({
-        match: { 
-          categories: filter.categories
+
+      console.log('map', filter.categories.map)
+      console.log('forEach', filter.categories.forEach)
+      console.log('categories', filter.categories)
+      shouldQueries.push({
+        "bool" : {
+          "should" : filter.categories.split(',').map(c => ({ "term" : { "categories" : c } }))
         }
       });
     }
