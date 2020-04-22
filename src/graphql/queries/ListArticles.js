@@ -158,17 +158,7 @@ export default {
       shouldQueries.push(
         {
           more_like_this: {
-            fields: ['title'],
-            like: likeQuery,
-            min_term_freq: 1,
-            min_doc_freq: 1,
-            minimum_should_match: filter.moreLikeThis.minimumShouldMatch || '3<70%',
-            boost: 5,
-          },
-        },
-        {
-          more_like_this: {
-            fields: ['text'],
+            fields: ['title', 'text'],
             like: likeQuery,
             min_term_freq: 1,
             min_doc_freq: 1,
