@@ -22,7 +22,7 @@ services:
       - "6222:5601"
 
   url-resolver:
-    image: johnsonliang/cofacts-url-resolver
+    image: vert/cf_url_resolver
     ports:
       - "4000:4000"
 
