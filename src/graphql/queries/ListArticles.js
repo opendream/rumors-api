@@ -158,38 +158,28 @@ export default {
       shouldQueries.push(
         {
           more_like_this: {
-            fields: ['title'],
+            fields: ['title', 'text'],
             like: likeQuery,
             min_term_freq: 1,
             min_doc_freq: 1,
             minimum_should_match: filter.moreLikeThis.minimumShouldMatch || '3<70%',
-            boost: 2,
           },
         },
-        {
-          more_like_this: {
-            fields: ['text'],
-            like: likeQuery,
-            min_term_freq: 1,
-            min_doc_freq: 1,
-            minimum_should_match: filter.moreLikeThis.minimumShouldMatch || '10<70%',
-          },
-        },
-        {
-          nested: {
-            path: 'hyperlinks',
-            score_mode: 'sum',
-            query: {
-              more_like_this: {
-                fields: ['hyperlinks.title', 'hyperlinks.summary'],
-                like: likeQuery,
-                min_term_freq: 1,
-                min_doc_freq: 1,
-                minimum_should_match:
-                  filter.moreLikeThis.minimumShouldMatch || '10<70%',
-              },
-            },
-          },
+        // {
+        //   nested: {
+        //     path: 'hyperlinks',
+        //     score_mode: 'sum',
+        //     query: {
+        //       more_like_this: {
+        //         fields: ['hyperlinks.title', 'hyperlinks.summary'],
+        //         like: likeQuery,
+        //         min_term_freq: 1,
+        //         min_doc_freq: 1,
+        //         minimum_should_match:
+        //           filter.moreLikeThis.minimumShouldMatch || '10<70%',
+        //       },
+        //     },
+        //   },
         }
       );
 
