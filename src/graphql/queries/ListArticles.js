@@ -163,7 +163,7 @@ export default {
             min_term_freq: 1,
             min_doc_freq: 1,
             minimum_should_match: filter.moreLikeThis.minimumShouldMatch || '3<70%',
-            // boost: 50,
+            boost: 5,
           },
         },
         {
