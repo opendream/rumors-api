@@ -125,13 +125,24 @@ export default {
       filter.appId = specifiedArticle.appId;
     }
 
-    if (filter.appId && filter.userId) {
+    // if (filter.appId && filter.userId) {
+    //   filterQueries.push(
+    //     { term: { appId: filter.appId } },
+    //     { term: { userId: filter.userId } }
+    //   );
+    // } else if (filter.appId || filter.userId) {
+    //   throw new Error('Both appId and userId must be specified at once');
+    // }
+
+    if (filter.appId) {
       filterQueries.push(
         { term: { appId: filter.appId } },
+      );
+    }
+    if (filter.userId) {
+      filterQueries.push(
         { term: { userId: filter.userId } }
       );
-    } else if (filter.appId || filter.userId) {
-      throw new Error('Both appId and userId must be specified at once');
     }
 
     filterQueries.push({
@@ -165,22 +176,22 @@ export default {
             minimum_should_match: filter.moreLikeThis.minimumShouldMatch || '3<70%',
           },
         },
-        // {
-        //   nested: {
-        //     path: 'hyperlinks',
-        //     score_mode: 'sum',
-        //     query: {
-        //       more_like_this: {
-        //         fields: ['hyperlinks.title', 'hyperlinks.summary'],
-        //         like: likeQuery,
-        //         min_term_freq: 1,
-        //         min_doc_freq: 1,
-        //         minimum_should_match:
-        //           filter.moreLikeThis.minimumShouldMatch || '10<70%',
-        //       },
-        //     },
-        //   },
-        // }
+        {
+          nested: {
+            path: 'hyperlinks',
+            score_mode: 'sum',
+            query: {
+              more_like_this: {
+                fields: ['hyperlinks.title', 'hyperlinks.summary'],
+                like: likeQuery,
+                min_term_freq: 1,
+                min_doc_freq: 1,
+                minimum_should_match:
+                  filter.moreLikeThis.minimumShouldMatch || '10<70%',
+              },
+            },
+          },
+        }
       );
 
       // Additionally, match the scrapped URLs with other article's scrapped urls
