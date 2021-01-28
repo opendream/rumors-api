@@ -90,10 +90,12 @@ async function scrapUrls(
 
         if (noFetch || scrappingCount >= scrapLimit) return null;
         scrappingCount += 1;
+
+        console.log('result', )
         return scrapLoader.load(result).then(scrapped => ({
           ...scrapped,
           url: originalUrls[i],
-          normalizedUrl: scrapped.url,
+          normalizedUrl: scrapped ? scrapped.url : result,
         }));
       })
     );
